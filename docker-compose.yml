@@ -1,0 +1,24 @@
+version: '3.5'
+
+services:
+  db_auth:
+    image: postgres:alpine
+    container_name: servletdb
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=root
+
+  web-servlet-service:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db_auth
+    networks:
+      - web-servlet-service_default  # присоединяемся к сети
+
+networks:
+  web-servlet-service_default:
+    external: true  # присоединяемся к внешней сети
