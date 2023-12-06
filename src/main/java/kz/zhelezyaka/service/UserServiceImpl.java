@@ -5,15 +5,19 @@ import kz.zhelezyaka.dto.UserDTO;
 import kz.zhelezyaka.dto.mapper.Mapper;
 import kz.zhelezyaka.dto.mapper.UserMapper;
 import kz.zhelezyaka.entity.User;
+import lombok.AllArgsConstructor;
 
 import java.util.List;
 
+
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserDAO userDAO;
-    private final Mapper<User, UserDTO> mapper = new UserMapper();
+    private Mapper<User, UserDTO> mapper;
 
     public UserServiceImpl() {
         this.userDAO = new UserDAO();
+        this.mapper = new UserMapper();
     }
 
     @Override
