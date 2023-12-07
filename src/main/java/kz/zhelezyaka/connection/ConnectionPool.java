@@ -1,4 +1,4 @@
-package kz.zhelezyaka.dao;
+package kz.zhelezyaka.connection;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

@@ -1,7 +1,7 @@
 package kz.zhelezyaka.dao;
 
 import kz.zhelezyaka.connection.ConnectionPool;
-import kz.zhelezyaka.entity.User;
+import kz.zhelezyaka.entity.Pet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,25 +10,25 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAO {
+public class PetDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
-    public List<User> getAllUsers() {
-        String sql = "select * from users";
+    public List<Pet> getAllPets() {
+        String sql = "select * from pets";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            List<User> result = new ArrayList<>();
+            List<Pet> result = new ArrayList<>();
 
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                User users = new User();
-                users.setId(resultSet.getInt(1));
-                users.setName(resultSet.getString(2));
+                Pet pets = new Pet();
+                pets.setId(resultSet.getInt(1));
+                pets.setName(resultSet.getString(2));
 
-                result.add(users);
+                result.add(pets);
             }
 
             return result;
@@ -38,55 +38,55 @@ public class UserDAO {
         }
     }
 
-    public User getUserById(int id) {
-        String sql = "select * from users where id = ?";
+    public Pet getPetById(int id) {
+        String sql = "select * from pets where id = ?";
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
-            User user = new User();
+            Pet pets = new Pet();
             if (resultSet.next()) {
-                user.setId(resultSet.getInt(1));
-                user.setName(resultSet.getString(2));
+                pets.setId(resultSet.getInt(1));
+                pets.setName(resultSet.getString(2));
             }
-            return user;
+            return pets;
 
         } catch (SQLException | NamingException e) {
             throw new RuntimeException();
         }
     }
 
-    public User saveUser(User user) {
-        String sql = "insert into users(name) values(?)";
+    public Pet savePet(Pet pet) {
+        String sql = "insert into pets(name) values(?)";
         Connection connection = null;
         try {
             connection = ConnectionPool.getConnection();
             connection.setAutoCommit(false);  // Установите автоматический коммит в false для управления транзакцией
 
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                statement.setString(1, user.getName());
+                statement.setString(1, pet.getName());
                 int rowsAffected = statement.executeUpdate();
 
                 if (rowsAffected == 1) {
                     try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             int generatedId = generatedKeys.getInt(1);
-                            user.setId(generatedId);
-                            logger.info("User saved successfully. Generated ID: {}", generatedId);
+                            pet.setId(generatedId);
+                            logger.info("Pet saved successfully. Generated ID: {}", generatedId);
                         } else {
                             throw new SQLException("Failed to get generated key.");
                         }
                     }
                 } else {
-                    throw new SQLException("Failed to insert user. No rows affected.");
+                    throw new SQLException("Failed to insert pet. No rows affected.");
                 }
             }
 
             connection.commit();  // Если не было исключений, коммитим транзакцию
 
-            return user;
+            return pet;
         } catch (SQLException | NamingException e) {
             try {
                 if (connection != null) {
@@ -95,7 +95,7 @@ public class UserDAO {
             } catch (SQLException ex) {
                 logger.error("Error rolling back transaction.", ex);
             }
-            throw new RuntimeException("Error while saving user.", e);
+            throw new RuntimeException("Error while saving pet.", e);
         } finally {
             try {
                 if (connection != null) {
@@ -108,16 +108,16 @@ public class UserDAO {
         }
     }
 
-    public User updateUser(User user) {
-        String sql = "update users set name = ? where id = ?";
+    public Pet updatePet(Pet pet) {
+        String sql = "update pets set name = ? where id = ?";
         try (Connection connection = ConnectionPool.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, user.getName());
-                statement.setInt(2, user.getId());
+                statement.setString(1, pet.getName());
+                statement.setInt(2, pet.getId());
                 statement.executeUpdate();
                 connection.commit();
-                return user;
+                return pet;
             } catch (SQLException e) {
                 connection.rollback();
                 throw new RuntimeException(e);
@@ -127,8 +127,8 @@ public class UserDAO {
         }
     }
 
-    public boolean removeUser(int id) {
-        String sql = "delete from users where id = ?";
+    public boolean removePet(int id) {
+        String sql = "delete from pets where id = ?";
         try (Connection connection = ConnectionPool.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -144,7 +144,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException | NamingException e) {
-            logger.error("Error while removing user", e);
+            logger.error("Error while removing pet", e);
             throw new RuntimeException(e);
         }
     }

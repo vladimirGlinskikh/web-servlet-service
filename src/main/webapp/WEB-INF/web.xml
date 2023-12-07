@@ -8,12 +8,22 @@
 
     <servlet>
         <servlet-name>userServlet</servlet-name>
-        <servlet-class>kz.zhelezyaka.UserServlet</servlet-class>
+        <servlet-class>kz.zhelezyaka.servlets.UserServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>petServlet</servlet-name>
+        <servlet-class>kz.zhelezyaka.servlets.PetServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>userServlet</servlet-name>
         <url-pattern>/users</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>petServlet</servlet-name>
+        <url-pattern>/pets</url-pattern>
     </servlet-mapping>
 
     <resource-ref>

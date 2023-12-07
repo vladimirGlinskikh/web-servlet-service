@@ -1,4 +1,4 @@
-package kz.zhelezyaka;
+package kz.zhelezyaka.servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -7,11 +7,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kz.zhelezyaka.dto.PetDTO;
 import kz.zhelezyaka.dto.UserDTO;
-
+import kz.zhelezyaka.service.PetService;
+import kz.zhelezyaka.service.PetServiceImpl;
 import kz.zhelezyaka.service.UserService;
 import kz.zhelezyaka.service.UserServiceImpl;
-
 
 import java.io.IOException;
 import java.util.List;
@@ -19,11 +20,12 @@ import java.util.List;
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 @WebServlet(
-        name = "UserServlet",
-        value = {"/users/*"}
+        name = "PetServlet",
+        value = {"/pets/*"}
 )
-public class UserServlet extends HttpServlet {
-    private final UserService service = new UserServiceImpl();
+public class PetServlet extends HttpServlet {
+
+    private final PetService service = new PetServiceImpl();
     private final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
@@ -33,20 +35,20 @@ public class UserServlet extends HttpServlet {
         response.setContentType("application/json");
 
         if (pathInfo == null || pathInfo.isEmpty()) {
-            List<UserDTO> allUsers = service.getAllUsers();
-            String json = mapper.writeValueAsString(allUsers);
+            List<PetDTO> allPets = service.getAllPets();
+            String json = mapper.writeValueAsString(allPets);
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(json);
         } else {
             String idString = pathInfo.substring(1);
             try {
-                int userId = Integer.parseInt(idString);
-                UserDTO user = service.getUserById(userId);
-                if (user == null) {
+                int petId = Integer.parseInt(idString);
+                PetDTO pet = service.getPetById(petId);
+                if (pet == null) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("User not found with id " + userId);
+                    response.getWriter().write("Pet not found with id " + petId);
                 }
-                String json = mapper.writeValueAsString(user);
+                String json = mapper.writeValueAsString(pet);
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(json);
             } catch (NumberFormatException e) {
@@ -66,11 +68,11 @@ public class UserServlet extends HttpServlet {
             return;
         }
         try {
-            UserDTO convertedUser = mapper.readValue(request.getReader(), UserDTO.class);
+            PetDTO convertedPet = mapper.readValue(request.getReader(), PetDTO.class);
 
-            UserDTO userDTO = service.saveUser(convertedUser);
+            PetDTO petDTO = service.savePet(convertedPet);
 
-            String json = mapper.writeValueAsString(userDTO);
+            String json = mapper.writeValueAsString(petDTO);
             response.setContentType("application/json");
             response.getWriter().write(json);
             response.setStatus(HttpServletResponse.SC_OK);
@@ -89,11 +91,11 @@ public class UserServlet extends HttpServlet {
             response.setStatus(SC_BAD_REQUEST);
             return;
         }
-        UserDTO convertedUser = mapper.readValue(request.getInputStream(), UserDTO.class);
+        PetDTO convertedPet = mapper.readValue(request.getInputStream(), PetDTO.class);
 
-        UserDTO userDTO = service.updateUser(convertedUser);
+        PetDTO petDTO = service.updatePet(convertedPet);
 
-        String json = mapper.writeValueAsString(userDTO);
+        String json = mapper.writeValueAsString(petDTO);
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(json);
@@ -108,8 +110,8 @@ public class UserServlet extends HttpServlet {
             String idString = pathInfo.substring(1);
 
             try {
-                int userId = Integer.parseInt(idString);
-                boolean bool = service.removeUser(userId);
+                int petId = Integer.parseInt(idString);
+                boolean bool = service.removePet(petId);
 
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_OK);
