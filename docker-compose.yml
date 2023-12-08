@@ -9,6 +9,9 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   web-servlet-service:
     build: .
