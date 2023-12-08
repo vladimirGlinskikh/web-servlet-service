@@ -90,7 +90,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testSaveUser() {
+    void shouldSaveUser() {
         UserDTO userDTO = UserDTO.builder().id(1).name("AnotherSaveUser").build();
 
         User user = new User();
@@ -111,7 +111,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testUpdateUser() {
+    void shouldUpdateUser() {
         UserDTO userDTO = UserDTO.builder().id(1).name("UpdatedUser").build();
         User user = new User();
         user.setId(1);
@@ -127,7 +127,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testRemoveUser() {
+    void shouldRemoveUser() {
         int userId = 1;
 
         when(userDAOMock.removeUser(anyInt())).thenReturn(true);
