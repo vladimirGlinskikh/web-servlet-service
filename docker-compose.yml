@@ -22,6 +22,19 @@ services:
     networks:
       - web-servlet-service_default  # присоединяемся к сети
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8086:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - web-servlet-service_default
+
 networks:
   web-servlet-service_default:
     external: true  # присоединяемся к внешней сети
+
+volumes:
+  jenkins_home:
