@@ -34,7 +34,7 @@ public class PetDAO {
             return result;
         } catch (SQLException | NamingException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error while getting all users", e);
+            throw new RuntimeException("Error while getting all pets", e);
         }
     }
 
