@@ -3,14 +3,13 @@ package kz.zhelezyaka.dao;
 import kz.zhelezyaka.connection.ConnectionPool;
 import kz.zhelezyaka.entity.Purchase;
 
-import javax.naming.NamingException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PurchaseDAO {
     public List<Purchase> getAllPurchases() {
-        String sql = "select * from purchases";
+        String sql = "SELECT * FROM purchases";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -36,7 +35,7 @@ public class PurchaseDAO {
     }
 
     public Purchase getPurchaseById(int id) {
-        String sql = "select * from purchases where id = ?";
+        String sql = "SELECT * FROM purchases WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 

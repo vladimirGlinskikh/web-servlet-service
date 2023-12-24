@@ -5,7 +5,6 @@ import kz.zhelezyaka.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ public class UserDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
     public List<User> getAllUsers() {
-        String sql = "select * from users";
+        String sql = "SELECT * FROM users";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -39,7 +38,7 @@ public class UserDAO {
     }
 
     public User getUserById(int id) {
-        String sql = "select * from users where id = ?";
+        String sql = "SELECT * FROM users WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -59,7 +58,7 @@ public class UserDAO {
     }
 
     public User saveUser(User user) {
-        String sql = "insert into users(name) values(?)";
+        String sql = "INSERT INTO users(name) VALUES (?)";
         Connection connection = null;
         try {
             connection = ConnectionPool.getConnection();
@@ -109,7 +108,7 @@ public class UserDAO {
     }
 
     public User updateUser(User user) {
-        String sql = "update users set name = ? where id = ?";
+        String sql = "UPDATE users SET name = ? WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -128,7 +127,7 @@ public class UserDAO {
     }
 
     public boolean removeUser(int id) {
-        String sql = "delete from users where id = ?";
+        String sql = "DELETE FROM users WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {

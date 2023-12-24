@@ -13,7 +13,7 @@ public class PetDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
     public List<Pet> getAllPets() {
-        String sql = "select * from pets";
+        String sql = "SELECT * FROM pets";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -38,7 +38,7 @@ public class PetDAO {
     }
 
     public Pet getPetById(int id) {
-        String sql = "select * from pets where id = ?";
+        String sql = "SELECT * FROM pets WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -58,11 +58,11 @@ public class PetDAO {
     }
 
     public Pet savePet(Pet pet) {
-        String sql = "insert into pets(name) values(?)";
+        String sql = "INSERT INTO pets(name) VALUES (?)";
         Connection connection = null;
         try {
             connection = ConnectionPool.getConnection();
-            connection.setAutoCommit(false);  // Установите автоматический коммит в false для управления транзакцией
+            connection.setAutoCommit(false);
 
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, pet.getName());
@@ -108,7 +108,7 @@ public class PetDAO {
     }
 
     public Pet updatePet(Pet pet) {
-        String sql = "update pets set name = ? where id = ?";
+        String sql = "UPDATE pets SET name = ? WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -127,7 +127,7 @@ public class PetDAO {
     }
 
     public boolean removePet(int id) {
-        String sql = "delete from pets where id = ?";
+        String sql = "DELETE FROM pets WHERE id = ?";
         try (Connection connection = ConnectionPool.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
