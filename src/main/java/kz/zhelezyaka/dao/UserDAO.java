@@ -23,7 +23,6 @@ public class UserDAO {
             while (resultSet.next()) {
                 User user = new User();
                 setUserParameters(user, resultSet);
-
                 result.add(user);
             }
             return result;
@@ -45,7 +44,6 @@ public class UserDAO {
                 setUserParameters(user, resultSet);
             }
             return user;
-
         } catch (SQLException e) {
             throw new DataAccessException("Error getting users by id: " + id, e);
         }
@@ -53,28 +51,26 @@ public class UserDAO {
 
     public User saveUser(User user) {
         String sql = "INSERT INTO users(name) VALUES (?)";
-        Connection connection = null;
-        try {
-            connection = ConnectionPool.getConnection();
+
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                statement.setString(1, user.getName());
-                int rowsAffected = statement.executeUpdate();
+            statement.setString(1, user.getName());
+            int rowsAffected = statement.executeUpdate();
 
-                if (rowsAffected == 1) {
-                    try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            int generatedId = generatedKeys.getInt(1);
-                            user.setId(generatedId);
-                            log.info("User saved successfully. Generated ID: {}", generatedId);
-                        } else {
-                            throw new SQLException("Failed to get generated key.");
-                        }
+            if (rowsAffected == 1) {
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        user.setId(generatedId);
+                        log.info("User saved successfully. Generated ID: {}", generatedId);
+                    } else {
+                        throw new SQLException("Failed to get generated key.");
                     }
-                } else {
-                    throw new SQLException("Failed to insert user. No rows affected.");
                 }
+            } else {
+                throw new SQLException("Failed to insert user. No rows affected.");
             }
             connection.commit();
             return user;
@@ -113,7 +109,6 @@ public class UserDAO {
                 connection.rollback();
                 return false;
             }
-
         } catch (SQLException e) {
             throw new DataAccessException("Error while removing user", e);
         }
