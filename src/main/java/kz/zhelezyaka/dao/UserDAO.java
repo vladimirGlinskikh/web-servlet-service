@@ -2,16 +2,15 @@ package kz.zhelezyaka.dao;
 
 import kz.zhelezyaka.connection.ConnectionPool;
 import kz.zhelezyaka.entity.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import kz.zhelezyaka.exception.DataAccessException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class UserDAO {
-    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
-
     public List<User> getAllUsers() {
         String sql = "SELECT * FROM users";
 
@@ -19,21 +18,17 @@ public class UserDAO {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             List<User> result = new ArrayList<>();
-
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                User users = new User();
-                users.setId(resultSet.getInt(1));
-                users.setName(resultSet.getString(2));
+                User user = new User();
+                setUserParameters(user, resultSet);
 
-                result.add(users);
+                result.add(user);
             }
-
             return result;
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error while getting all users", e);
+            throw new DataAccessException("Error while getting all users", e);
         }
     }
 
@@ -47,13 +42,12 @@ public class UserDAO {
 
             User user = new User();
             if (resultSet.next()) {
-                user.setId(resultSet.getInt(1));
-                user.setName(resultSet.getString(2));
+                setUserParameters(user, resultSet);
             }
             return user;
 
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new DataAccessException("Error getting users by id: " + id, e);
         }
     }
 
@@ -62,7 +56,7 @@ public class UserDAO {
         Connection connection = null;
         try {
             connection = ConnectionPool.getConnection();
-            connection.setAutoCommit(false);  // Установите автоматический коммит в false для управления транзакцией
+            connection.setAutoCommit(false);
 
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, user.getName());
@@ -73,7 +67,7 @@ public class UserDAO {
                         if (generatedKeys.next()) {
                             int generatedId = generatedKeys.getInt(1);
                             user.setId(generatedId);
-                            logger.info("User saved successfully. Generated ID: {}", generatedId);
+                            log.info("User saved successfully. Generated ID: {}", generatedId);
                         } else {
                             throw new SQLException("Failed to get generated key.");
                         }
@@ -82,69 +76,51 @@ public class UserDAO {
                     throw new SQLException("Failed to insert user. No rows affected.");
                 }
             }
-
-            connection.commit();  // Если не было исключений, коммитим транзакцию
-
+            connection.commit();
             return user;
         } catch (SQLException e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();  // Если возникло исключение, откатываем транзакцию
-                }
-            } catch (SQLException ex) {
-                logger.error("Error rolling back transaction.", ex);
-            }
-            throw new RuntimeException("Error while saving user.", e);
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.setAutoCommit(true);  // Возвращаем автоматический коммит в исходное состояние
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                logger.error("Error closing connection.", e);
-            }
+            throw new DataAccessException("Error while saving user.", e);
         }
     }
 
     public User updateUser(User user) {
         String sql = "UPDATE users SET name = ? WHERE id = ?";
-        try (Connection connection = ConnectionPool.getConnection()) {
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             connection.setAutoCommit(false);
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, user.getName());
-                statement.setInt(2, user.getId());
-                statement.executeUpdate();
-                connection.commit();
-                return user;
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new RuntimeException(e);
-            }
+            statement.setString(1, user.getName());
+            statement.setInt(2, user.getId());
+            statement.executeUpdate();
+            connection.commit();
+            return user;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error while updating user", e);
         }
     }
 
     public boolean removeUser(int id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection connection = ConnectionPool.getConnection()) {
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             connection.setAutoCommit(false);
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setInt(1, id);
-                int result = statement.executeUpdate();
+            statement.setInt(1, id);
+            int result = statement.executeUpdate();
 
-                if (result > 0) {
-                    connection.commit();
-                    return true;
-                } else {
-                    connection.rollback();
-                    return false;
-                }
+            if (result > 0) {
+                connection.commit();
+                return true;
+            } else {
+                connection.rollback();
+                return false;
             }
+
         } catch (SQLException e) {
-            logger.error("Error while removing user", e);
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error while removing user", e);
         }
+    }
+
+    private static void setUserParameters(User user, ResultSet resultSet) throws SQLException {
+        user.setId(resultSet.getInt(1));
+        user.setName(resultSet.getString(2));
     }
 }
