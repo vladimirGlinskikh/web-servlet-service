@@ -29,7 +29,7 @@ public class PurchaseDAO {
             }
 
             return result;
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Error while getting all purchases", e);
         }
@@ -51,7 +51,7 @@ public class PurchaseDAO {
             }
             return purchase;
 
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }

@@ -32,7 +32,7 @@ public class UserDAO {
             }
 
             return result;
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Error while getting all users", e);
         }
@@ -53,7 +53,7 @@ public class UserDAO {
             }
             return user;
 
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
@@ -87,7 +87,7 @@ public class UserDAO {
             connection.commit();  // Если не было исключений, коммитим транзакцию
 
             return user;
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             try {
                 if (connection != null) {
                     connection.rollback();  // Если возникло исключение, откатываем транзакцию
@@ -122,7 +122,7 @@ public class UserDAO {
                 connection.rollback();
                 throw new RuntimeException(e);
             }
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -143,7 +143,7 @@ public class UserDAO {
                     return false;
                 }
             }
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             logger.error("Error while removing user", e);
             throw new RuntimeException(e);
         }

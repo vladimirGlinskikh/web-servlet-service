@@ -5,7 +5,6 @@ import kz.zhelezyaka.entity.Pet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class PetDAO {
             }
 
             return result;
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Error while getting all pets", e);
         }
@@ -53,7 +52,7 @@ public class PetDAO {
             }
             return pets;
 
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
@@ -87,7 +86,7 @@ public class PetDAO {
             connection.commit();  // Если не было исключений, коммитим транзакцию
 
             return pet;
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             try {
                 if (connection != null) {
                     connection.rollback();  // Если возникло исключение, откатываем транзакцию
@@ -122,7 +121,7 @@ public class PetDAO {
                 connection.rollback();
                 throw new RuntimeException(e);
             }
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -143,7 +142,7 @@ public class PetDAO {
                     return false;
                 }
             }
-        } catch (SQLException | NamingException e) {
+        } catch (SQLException e) {
             logger.error("Error while removing pet", e);
             throw new RuntimeException(e);
         }
