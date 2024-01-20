@@ -3,10 +3,6 @@ package kz.zhelezyaka.connection;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -16,19 +12,22 @@ public class ConnectionPool {
     private ConnectionPool() {
     }
 
-    public static synchronized Connection getConnection() throws SQLException, NamingException {
+    public static synchronized Connection getConnection() throws SQLException {
         if (dataSource == null) {
             initializeDataSource();
         }
         return dataSource.getConnection();
     }
 
-    private static void initializeDataSource() throws NamingException {
-        Context initContext = new InitialContext();
-        Context envContext = (Context) initContext.lookup("java:comp/env");
-        DataSource jndiDataSource = (DataSource) envContext.lookup("jdbc/web-servlet");
+    private static void initializeDataSource() {
         HikariConfig config = new HikariConfig();
-        config.setDataSource(jndiDataSource);
+        config.setJdbcUrl("jdbc:postgresql://servletdb:5432/postgres");
+        config.setUsername("admin");
+        config.setPassword("root");
+        config.setDriverClassName("org.postgresql.Driver");
+        config.setConnectionTimeout(30000);
+        config.setMaximumPoolSize(10);
+        config.setAutoCommit(false);
 
         dataSource = new HikariDataSource(config);
     }

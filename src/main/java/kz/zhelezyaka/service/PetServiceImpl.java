@@ -5,6 +5,7 @@ import kz.zhelezyaka.dto.PetDTO;
 import kz.zhelezyaka.dto.mapper.Mapper;
 import kz.zhelezyaka.dto.mapper.PetMapper;
 import kz.zhelezyaka.entity.Pet;
+import kz.zhelezyaka.exception.DataAccessException;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class PetServiceImpl implements PetService {
             Pet uPet = petDAO.updatePet(mapper.toEntity(petDTO));
             return mapper.toDto(uPet);
         } catch (Exception e) {
-            throw new RuntimeException("Error while updating pet.", e);
+            throw new DataAccessException("Error while updating pet.", e);
         }
     }
 

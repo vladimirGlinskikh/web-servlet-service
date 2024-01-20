@@ -1,13 +1,11 @@
 package kz.zhelezyaka.service;
 
-import kz.zhelezyaka.dao.PurchaseDAO;
 import kz.zhelezyaka.dao.UserDAO;
-import kz.zhelezyaka.dto.PetDTO;
-import kz.zhelezyaka.dto.PurchaseDTO;
 import kz.zhelezyaka.dto.UserDTO;
 import kz.zhelezyaka.dto.mapper.Mapper;
 import kz.zhelezyaka.dto.mapper.UserMapper;
 import kz.zhelezyaka.entity.User;
+import kz.zhelezyaka.exception.DataAccessException;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -49,7 +47,7 @@ public class UserServiceImpl implements UserService {
             return mapper.toDto(uUser);
         } catch (Exception e) {
 
-            throw new RuntimeException("Error while updating user.", e);
+            throw new DataAccessException("Error while updating user.", e);
         }
     }
 

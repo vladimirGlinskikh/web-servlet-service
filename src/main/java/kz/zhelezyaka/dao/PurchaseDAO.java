@@ -2,57 +2,38 @@ package kz.zhelezyaka.dao;
 
 import kz.zhelezyaka.connection.ConnectionPool;
 import kz.zhelezyaka.entity.Purchase;
+import kz.zhelezyaka.entity.User;
+import kz.zhelezyaka.exception.DataAccessException;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.naming.NamingException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class PurchaseDAO {
     public List<Purchase> getAllPurchases() {
-        String sql = "select * from purchases";
+        String sql = "SELECT * FROM purchases";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             List<Purchase> result = new ArrayList<>();
-
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 Purchase purchase = new Purchase();
-                purchase.setId(resultSet.getInt("id"));
-                purchase.setUserId(resultSet.getInt("user_id"));
-                purchase.setPetId(resultSet.getInt("pet_id"));
+                User user = new User();
+                int userId = resultSet.getInt("user_id");
 
+                user.setId(userId);
+
+                purchase.setUser(user);
                 result.add(purchase);
             }
-
             return result;
-        } catch (SQLException | NamingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error while getting all purchases", e);
-        }
-    }
-
-    public Purchase getPurchaseById(int id) {
-        String sql = "select * from purchases where id = ?";
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            Purchase purchase = new Purchase();
-            if (resultSet.next()) {
-                purchase.setId(resultSet.getInt("id"));
-                purchase.setUserId(resultSet.getInt("user_id"));
-                purchase.setPetId(resultSet.getInt("pet_id"));
-            }
-            return purchase;
-
-        } catch (SQLException | NamingException e) {
-            throw new RuntimeException();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error retrieving all purchases", e);
         }
     }
 }
