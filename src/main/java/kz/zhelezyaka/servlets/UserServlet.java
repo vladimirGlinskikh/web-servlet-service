@@ -2,7 +2,6 @@ package kz.zhelezyaka.servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,14 +22,15 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
         value = {"/users/*"}
 )
 public class UserServlet extends HttpServlet {
-    private final UserService service = new UserServiceImpl();
+    private static final String MIME = "application/json";
+    private final transient UserService service = new UserServiceImpl();
     private final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String pathInfo = request.getPathInfo();
-        response.setContentType("application/json");
+        response.setContentType(MIME);
 
         if (pathInfo == null || pathInfo.isEmpty()) {
             List<UserDTO> allUsers = service.getAllUsers();
@@ -58,7 +58,6 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Логика обработки POST-запроса
         String pathInfo = request.getPathInfo();
         if (pathInfo != null && !pathInfo.isEmpty()) {
             response.getWriter().write("Invalid Path");
@@ -71,7 +70,7 @@ public class UserServlet extends HttpServlet {
             UserDTO userDTO = service.saveUser(convertedUser);
 
             String json = mapper.writeValueAsString(userDTO);
-            response.setContentType("application/json");
+            response.setContentType(MIME);
             response.getWriter().write(json);
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception e) {
@@ -81,8 +80,7 @@ public class UserServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Логика обработки PUT-запроса
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String pathInfo = request.getPathInfo();
         if (pathInfo != null && !pathInfo.isEmpty()) {
             response.getWriter().write("Invalid Path");
@@ -94,14 +92,13 @@ public class UserServlet extends HttpServlet {
         UserDTO userDTO = service.updateUser(convertedUser);
 
         String json = mapper.writeValueAsString(userDTO);
-        response.setContentType("application/json");
+        response.setContentType(MIME);
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(json);
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Логика обработки DELETE-запроса
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo != null && !pathInfo.equals("/")) {
@@ -111,7 +108,7 @@ public class UserServlet extends HttpServlet {
                 int userId = Integer.parseInt(idString);
                 boolean bool = service.removeUser(userId);
 
-                response.setContentType("application/json");
+                response.setContentType(MIME);
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Successfully removed: " + bool);
             } catch (NumberFormatException e) {

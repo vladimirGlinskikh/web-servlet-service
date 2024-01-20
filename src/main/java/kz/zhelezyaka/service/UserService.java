@@ -1,6 +1,5 @@
 package kz.zhelezyaka.service;
 
-import kz.zhelezyaka.dto.PetDTO;
 import kz.zhelezyaka.dto.UserDTO;
 
 import java.util.List;

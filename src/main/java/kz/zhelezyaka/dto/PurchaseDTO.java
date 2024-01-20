@@ -10,4 +10,6 @@ import lombok.*;
 @Builder
 public class PurchaseDTO {
     private int id;
+    private UserDTO user;
+    private PetDTO pet;
 }

@@ -54,7 +54,6 @@ public class UserDAO {
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            connection.setAutoCommit(false);
 
             statement.setString(1, user.getName());
             int rowsAffected = statement.executeUpdate();
@@ -64,7 +63,6 @@ public class UserDAO {
                     if (generatedKeys.next()) {
                         int generatedId = generatedKeys.getInt(1);
                         user.setId(generatedId);
-                        log.info("User saved successfully. Generated ID: {}", generatedId);
                     } else {
                         throw new SQLException("Failed to get generated key.");
                     }
@@ -72,7 +70,6 @@ public class UserDAO {
             } else {
                 throw new SQLException("Failed to insert user. No rows affected.");
             }
-            connection.commit();
             return user;
         } catch (SQLException e) {
             throw new DataAccessException("Error while saving user.", e);
@@ -81,13 +78,12 @@ public class UserDAO {
 
     public User updateUser(User user) {
         String sql = "UPDATE users SET name = ? WHERE id = ?";
+
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            connection.setAutoCommit(false);
             statement.setString(1, user.getName());
             statement.setInt(2, user.getId());
             statement.executeUpdate();
-            connection.commit();
             return user;
         } catch (SQLException e) {
             throw new DataAccessException("Error while updating user", e);
@@ -96,19 +92,14 @@ public class UserDAO {
 
     public boolean removeUser(int id) {
         String sql = "DELETE FROM users WHERE id = ?";
+
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            connection.setAutoCommit(false);
+
             statement.setInt(1, id);
             int result = statement.executeUpdate();
 
-            if (result > 0) {
-                connection.commit();
-                return true;
-            } else {
-                connection.rollback();
-                return false;
-            }
+            return result > 0;
         } catch (SQLException e) {
             throw new DataAccessException("Error while removing user", e);
         }

@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 public class Purchase {
     private int id;
-    private int userId;
-    private int petId;
+    private User user;
+    private Pet pet;
 }

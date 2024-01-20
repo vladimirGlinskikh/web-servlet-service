@@ -2,6 +2,7 @@ package kz.zhelezyaka.dao;
 
 import kz.zhelezyaka.connection.ConnectionPool;
 import kz.zhelezyaka.entity.Purchase;
+import kz.zhelezyaka.entity.User;
 import kz.zhelezyaka.exception.DataAccessException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,40 +23,17 @@ public class PurchaseDAO {
 
             while (resultSet.next()) {
                 Purchase purchase = new Purchase();
-                setPurchasePropertiesFromResultSet(purchase, resultSet);
+                User user = new User();
+                int userId = resultSet.getInt("user_id");
 
+                user.setId(userId);
+
+                purchase.setUser(user);
                 result.add(purchase);
             }
-
             return result;
         } catch (SQLException e) {
-            throw new DataAccessException("Error retrieving all purchase", e);
+            throw new DataAccessException("Error retrieving all purchases", e);
         }
-    }
-
-    public Purchase getPurchaseById(int id) {
-        String sql = "SELECT * FROM purchases WHERE id = ?";
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            Purchase purchase = new Purchase();
-            if (resultSet.next()) {
-                setPurchasePropertiesFromResultSet(purchase, resultSet);
-            }
-            return purchase;
-
-        } catch (SQLException e) {
-            log.error("Error while getting purchases by id", e);
-            throw new DataAccessException("Error retrieving purchase by id: " + id, e);
-        }
-    }
-
-    private static void setPurchasePropertiesFromResultSet(Purchase purchase, ResultSet resultSet) throws SQLException {
-        purchase.setId(resultSet.getInt("id"));
-        purchase.setUserId(resultSet.getInt("user_id"));
-        purchase.setPetId(resultSet.getInt("pet_id"));
     }
 }
